@@ -1,16 +1,31 @@
-# shelfcontrol
+# ShelfControl
 
-A new Flutter project.
+ShelfControl is a Flutter mobile app for searching books with the Open Library API and saving them to a personal library stored locally with SQLite.
 
-## Getting Started
+## Planned Features
 
-This project is a starting point for a Flutter application.
+- Search books by title or author
+- Save books to a personal library
+- Track reading status
+- Add personal notes and ratings
+- View reading statistics
+- Show a custom splash screen and launcher icon
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter
+- Dart
+- Open Library API
+- SQLite with `sqflite`
+- `provider` for state management
+- `http` for networking
+- `cached_network_image` for book covers
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Current Status
+
+The project is in the initial setup phase. The next implementation steps are:
+
+- Create the app folder structure
+- Add book model and services
+- Build provider-based state management
+- Implement Search, Library, and Stats screens
