@@ -27,70 +27,63 @@ class _SearchScreenState extends State<SearchScreen> {
       builder: (context, provider, _) {
         final results = provider.searchResults;
 
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                BookSearchBar(
-                  controller: _controller,
-                  onSubmitted: provider.searchBooks,
-                ),
-                if (provider.isLoading)
-                  const LinearProgressIndicator(minHeight: 2),
-                if (provider.errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      provider.errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                Expanded(
-                  child: results.isEmpty
-                      ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Text(
-                              'Search for a book to start building your library.',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: results.length,
-                          itemBuilder: (context, index) {
-                            final book = results[index];
-
-                            return BookCard(
-                              book: book,
-                              trailing: FilledButton(
-                                onPressed: () async {
-                                  await provider.addBook(book);
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-
-                                  final message =
-                                      provider.errorMessage ??
-                                      '${book.title} added to your library.';
-                                  ScaffoldMessenger.of(context)
-                                    ..hideCurrentSnackBar()
-                                    ..showSnackBar(
-                                      SnackBar(content: Text(message)),
-                                    );
-                                  provider.clearMessage();
-                                },
-                                child: const Text('Add'),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ],
+        return Column(
+          children: [
+            BookSearchBar(
+              controller: _controller,
+              onSubmitted: provider.searchBooks,
             ),
-          ),
+            if (provider.isLoading) const LinearProgressIndicator(minHeight: 2),
+            if (provider.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  provider.errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            Expanded(
+              child: results.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'Search for a book to start building your library.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: results.length,
+                      itemBuilder: (context, index) {
+                        final book = results[index];
+
+                        return BookCard(
+                          book: book,
+                          trailing: FilledButton(
+                            onPressed: () async {
+                              final saved = await provider.addBook(book);
+                              if (!context.mounted) {
+                                return;
+                              }
+
+                              final message = saved
+                                  ? '${book.title} added to your library.'
+                                  : (provider.errorMessage ??
+                                        'Unable to add the book.');
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  SnackBar(content: Text(message)),
+                                );
+                            },
+                            child: const Text('Add'),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         );
       },
     );

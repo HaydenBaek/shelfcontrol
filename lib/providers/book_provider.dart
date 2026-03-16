@@ -68,7 +68,7 @@ class BookProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addBook(Book book) async {
+  Future<bool> addBook(Book book) async {
     final duplicate = _libraryBooks.any(
       (savedBook) =>
           savedBook.title.toLowerCase() == book.title.toLowerCase() &&
@@ -78,7 +78,7 @@ class BookProvider extends ChangeNotifier {
     if (duplicate) {
       _errorMessage = 'This book is already in your library.';
       notifyListeners();
-      return;
+      return false;
     }
 
     try {
@@ -89,9 +89,11 @@ class BookProvider extends ChangeNotifier {
       ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
       _errorMessage = null;
       notifyListeners();
+      return true;
     } catch (error) {
       _errorMessage = 'Failed to save the book.';
       notifyListeners();
+      return false;
     }
   }
 

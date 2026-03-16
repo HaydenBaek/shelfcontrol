@@ -10,41 +10,37 @@ class StatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<BookProvider>(
       builder: (context, provider, _) {
-        return Scaffold(
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Reading Stats',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 16),
-                  _StatCard(
-                    label: 'Total books',
-                    value: provider.totalBooks.toString(),
-                    color: const Color(0xFF5E7A66),
-                  ),
-                  _StatCard(
-                    label: 'Currently reading',
-                    value: provider.readingCount.toString(),
-                    color: const Color(0xFFC38D4D),
-                  ),
-                  _StatCard(
-                    label: 'Finished',
-                    value: provider.finishedCount.toString(),
-                    color: const Color(0xFF8A5A44),
-                  ),
-                  _StatCard(
-                    label: 'Want to read',
-                    value: provider.wantToReadCount.toString(),
-                    color: const Color(0xFF6A7F9B),
-                  ),
-                ],
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Reading Stats',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
+              const SizedBox(height: 16),
+              _StatCard(
+                label: 'Total books',
+                value: provider.totalBooks.toString(),
+                color: const Color(0xFF5E7A66),
+              ),
+              _StatCard(
+                label: 'Currently reading',
+                value: provider.readingCount.toString(),
+                color: const Color(0xFFC38D4D),
+              ),
+              _StatCard(
+                label: 'Finished',
+                value: provider.finishedCount.toString(),
+                color: const Color(0xFF8A5A44),
+              ),
+              _StatCard(
+                label: 'Want to read',
+                value: provider.wantToReadCount.toString(),
+                color: const Color(0xFF6A7F9B),
+              ),
+            ],
           ),
         );
       },
