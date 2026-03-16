@@ -1,14 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class SearchScreen extends StatelessWidget {
+import '../providers/book_provider.dart';
+import '../widgets/book_card.dart';
+import '../widgets/search_bar.dart';
+
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
   @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Search Screen'),
-      ),
+    return Consumer<BookProvider>(
+      builder: (context, provider, _) {
+        final results = provider.searchResults;
+
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                BookSearchBar(
+                  controller: _controller,
+                  onSubmitted: provider.searchBooks,
+                ),
+                if (provider.isLoading)
+                  const LinearProgressIndicator(minHeight: 2),
+                if (provider.errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      provider.errorMessage!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: results.isEmpty
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Text(
+                              'Search for a book to start building your library.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: results.length,
+                          itemBuilder: (context, index) {
+                            final book = results[index];
+
+                            return BookCard(
+                              book: book,
+                              trailing: FilledButton(
+                                onPressed: () async {
+                                  await provider.addBook(book);
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+
+                                  final message =
+                                      provider.errorMessage ??
+                                      '${book.title} added to your library.';
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(
+                                      SnackBar(content: Text(message)),
+                                    );
+                                  provider.clearMessage();
+                                },
+                                child: const Text('Add'),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

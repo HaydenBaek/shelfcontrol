@@ -3,11 +3,7 @@ class BookStatus {
   static const String reading = 'reading';
   static const String finished = 'finished';
 
-  static const List<String> values = [
-    wantToRead,
-    reading,
-    finished,
-  ];
+  static const List<String> values = [wantToRead, reading, finished];
 }
 
 class Book {
