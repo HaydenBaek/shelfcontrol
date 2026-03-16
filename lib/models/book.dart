@@ -15,6 +15,7 @@ class Book {
     this.status = BookStatus.wantToRead,
     this.notes = '',
     this.rating = 0,
+    this.currentPage = 0,
   });
 
   final int? id;
@@ -24,6 +25,7 @@ class Book {
   final String status;
   final String notes;
   final int rating;
+  final int currentPage;
 
   Book copyWith({
     int? id,
@@ -33,6 +35,7 @@ class Book {
     String? status,
     String? notes,
     int? rating,
+    int? currentPage,
   }) {
     return Book(
       id: id ?? this.id,
@@ -42,6 +45,7 @@ class Book {
       status: status ?? this.status,
       notes: notes ?? this.notes,
       rating: rating ?? this.rating,
+      currentPage: currentPage ?? this.currentPage,
     );
   }
 
@@ -54,6 +58,7 @@ class Book {
       'status': status,
       'notes': notes,
       'rating': rating,
+      'currentPage': currentPage,
     };
   }
 
@@ -66,6 +71,7 @@ class Book {
       status: _parseStatus(map['status'] as String?),
       notes: (map['notes'] as String?) ?? '',
       rating: (map['rating'] as num?)?.toInt() ?? 0,
+      currentPage: (map['currentPage'] as num?)?.toInt() ?? 0,
     );
   }
 

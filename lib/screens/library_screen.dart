@@ -35,7 +35,7 @@ class LibraryScreen extends StatelessWidget {
 
                         return BookCard(
                           book: book,
-                          subtitle: book.author,
+                          subtitle: _bookSubtitle(book),
                           statusChip: _StatusChip(status: book.status),
                           onTap: () => _editBook(context, provider, book),
                           trailing: PopupMenuButton<String>(
@@ -125,6 +125,14 @@ class LibraryScreen extends StatelessWidget {
         return 'Want to Read';
     }
   }
+
+  static String _bookSubtitle(Book book) {
+    if (book.currentPage > 0) {
+      return '${book.author}\nPage ${book.currentPage}';
+    }
+
+    return book.author;
+  }
 }
 
 class _LibraryHeader extends StatelessWidget {
@@ -206,6 +214,7 @@ class _BookEditDialog extends StatefulWidget {
 
 class _BookEditDialogState extends State<_BookEditDialog> {
   late final TextEditingController _notesController;
+  late final TextEditingController _pageController;
   late String _selectedStatus;
   late int _selectedRating;
 
@@ -213,6 +222,9 @@ class _BookEditDialogState extends State<_BookEditDialog> {
   void initState() {
     super.initState();
     _notesController = TextEditingController(text: widget.book.notes);
+    _pageController = TextEditingController(
+      text: widget.book.currentPage == 0 ? '' : '${widget.book.currentPage}',
+    );
     _selectedStatus = widget.book.status;
     _selectedRating = widget.book.rating;
   }
@@ -220,6 +232,7 @@ class _BookEditDialogState extends State<_BookEditDialog> {
   @override
   void dispose() {
     _notesController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -266,6 +279,16 @@ class _BookEditDialogState extends State<_BookEditDialog> {
               ),
             ),
             const SizedBox(height: 16),
+            TextField(
+              controller: _pageController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Current page',
+                hintText: 'Enter your current page number',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             Text('Rating', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Row(
@@ -300,11 +323,13 @@ class _BookEditDialogState extends State<_BookEditDialog> {
         ),
         FilledButton(
           onPressed: () {
+            final parsedPage = int.tryParse(_pageController.text.trim()) ?? 0;
             Navigator.of(context).pop(
               widget.book.copyWith(
                 status: _selectedStatus,
                 notes: _notesController.text.trim(),
                 rating: _selectedRating.clamp(0, 5),
+                currentPage: parsedPage < 0 ? 0 : parsedPage,
               ),
             );
           },

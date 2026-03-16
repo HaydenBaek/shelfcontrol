@@ -28,7 +28,7 @@ class DatabaseService {
 
     return openDatabase(
       dbPath,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE $booksTable(
@@ -38,9 +38,17 @@ class DatabaseService {
             coverUrl TEXT NOT NULL,
             status TEXT NOT NULL,
             notes TEXT NOT NULL,
-            rating INTEGER NOT NULL
+            rating INTEGER NOT NULL,
+            currentPage INTEGER NOT NULL DEFAULT 0
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE $booksTable ADD COLUMN currentPage INTEGER NOT NULL DEFAULT 0',
+          );
+        }
       },
     );
   }
