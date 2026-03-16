@@ -31,7 +31,8 @@ class LibraryScreen extends StatelessWidget {
 
                   return BookCard(
                     book: book,
-                    subtitle: '${book.author}\n${_statusLabel(book.status)}',
+                    subtitle: book.author,
+                    statusChip: _StatusChip(status: book.status),
                     onTap: () => _editBook(context, provider, book),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) async {
@@ -41,7 +42,18 @@ class LibraryScreen extends StatelessWidget {
                         }
 
                         if (book.id != null) {
-                          await provider.deleteBook(book.id!);
+                          final deleted = await provider.deleteBook(book.id!);
+                          if (!context.mounted) {
+                            return;
+                          }
+
+                          final message = deleted
+                              ? '${book.title} removed from your library.'
+                              : (provider.libraryMessage ??
+                                    'Unable to delete the book.');
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(SnackBar(content: Text(message)));
                         }
                       },
                       itemBuilder: (context) => const [
@@ -66,7 +78,17 @@ class LibraryScreen extends StatelessWidget {
         return;
       }
 
-      await provider.updateBook(updatedBook);
+      final updated = await provider.updateBook(updatedBook);
+      if (!context.mounted) {
+        return;
+      }
+
+      final message = updated
+          ? '${updatedBook.title} updated.'
+          : (provider.libraryMessage ?? 'Unable to update the book.');
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
     });
   }
 
@@ -88,6 +110,36 @@ class LibraryScreen extends StatelessWidget {
       default:
         return 'Want to Read';
     }
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color) = switch (status) {
+      BookStatus.reading => ('Reading', const Color(0xFFC38D4D)),
+      BookStatus.finished => ('Finished', const Color(0xFF5E7A66)),
+      _ => ('Want to Read', const Color(0xFF6A7F9B)),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 }
 

@@ -10,12 +10,14 @@ class BookCard extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.subtitle,
+    this.statusChip,
   });
 
   final Book book;
   final Widget? trailing;
   final VoidCallback? onTap;
   final String? subtitle;
+  final Widget? statusChip;
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +53,17 @@ class BookCard extends StatelessWidget {
           ),
         ),
         title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-        subtitle: Text(
-          subtitle ?? book.author,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              subtitle ?? book.author,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (statusChip != null) ...[const SizedBox(height: 6), statusChip!],
+          ],
         ),
         trailing: trailing,
       ),

@@ -34,11 +34,11 @@ class _SearchScreenState extends State<SearchScreen> {
               onSubmitted: provider.searchBooks,
             ),
             if (provider.isLoading) const LinearProgressIndicator(minHeight: 2),
-            if (provider.errorMessage != null)
+            if (provider.searchErrorMessage != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  provider.errorMessage!,
+                  provider.searchErrorMessage!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                               final message = saved
                                   ? '${book.title} added to your library.'
-                                  : (provider.errorMessage ??
+                                  : (provider.libraryMessage ??
                                         'Unable to add the book.');
                               ScaffoldMessenger.of(context)
                                 ..hideCurrentSnackBar()

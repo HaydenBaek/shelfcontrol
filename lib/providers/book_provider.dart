@@ -15,12 +15,14 @@ class BookProvider extends ChangeNotifier {
   List<Book> _searchResults = [];
   List<Book> _libraryBooks = [];
   bool _isLoading = false;
-  String? _errorMessage;
+  String? _searchErrorMessage;
+  String? _libraryMessage;
 
   List<Book> get searchResults => _searchResults;
   List<Book> get libraryBooks => _libraryBooks;
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+  String? get searchErrorMessage => _searchErrorMessage;
+  String? get libraryMessage => _libraryMessage;
   int get totalBooks => _libraryBooks.length;
   int get readingCount =>
       _libraryBooks.where((book) => book.status == BookStatus.reading).length;
@@ -39,9 +41,9 @@ class BookProvider extends ChangeNotifier {
 
     try {
       _libraryBooks = await _databaseService.getBooks();
-      _errorMessage = null;
+      _libraryMessage = null;
     } catch (error) {
-      _errorMessage = 'Failed to load your library.';
+      _libraryMessage = 'Failed to load your library.';
     } finally {
       _setLoading(false);
     }
@@ -50,7 +52,7 @@ class BookProvider extends ChangeNotifier {
   Future<void> searchBooks(String query) async {
     if (query.trim().isEmpty) {
       _searchResults = [];
-      _errorMessage = null;
+      _searchErrorMessage = null;
       notifyListeners();
       return;
     }
@@ -59,10 +61,10 @@ class BookProvider extends ChangeNotifier {
 
     try {
       _searchResults = await _apiService.searchBooks(query);
-      _errorMessage = null;
+      _searchErrorMessage = null;
     } catch (error) {
       _searchResults = [];
-      _errorMessage = 'Search failed. Please try again.';
+      _searchErrorMessage = 'Search failed. Please try again.';
     } finally {
       _setLoading(false);
     }
@@ -76,7 +78,7 @@ class BookProvider extends ChangeNotifier {
     );
 
     if (duplicate) {
-      _errorMessage = 'This book is already in your library.';
+      _libraryMessage = 'This book is already in your library.';
       notifyListeners();
       return false;
     }
@@ -87,19 +89,21 @@ class BookProvider extends ChangeNotifier {
         ..._libraryBooks,
         savedBook,
       ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-      _errorMessage = null;
+      _libraryMessage = null;
       notifyListeners();
       return true;
     } catch (error) {
-      _errorMessage = 'Failed to save the book.';
+      _libraryMessage = 'Failed to save the book.';
       notifyListeners();
       return false;
     }
   }
 
-  Future<void> updateBook(Book updatedBook) async {
+  Future<bool> updateBook(Book updatedBook) async {
     if (updatedBook.id == null) {
-      return;
+      _libraryMessage = 'Unable to update this book.';
+      notifyListeners();
+      return false;
     }
 
     try {
@@ -111,32 +115,45 @@ class BookProvider extends ChangeNotifier {
             ..sort(
               (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
             );
-      _errorMessage = null;
+      _libraryMessage = null;
       notifyListeners();
+      return true;
     } catch (error) {
-      _errorMessage = 'Failed to update the book.';
+      _libraryMessage = 'Failed to update the book.';
       notifyListeners();
+      return false;
     }
   }
 
-  Future<void> deleteBook(int id) async {
+  Future<bool> deleteBook(int id) async {
     try {
       await _databaseService.deleteBook(id);
       _libraryBooks = _libraryBooks.where((book) => book.id != id).toList();
-      _errorMessage = null;
+      _libraryMessage = null;
       notifyListeners();
+      return true;
     } catch (error) {
-      _errorMessage = 'Failed to delete the book.';
+      _libraryMessage = 'Failed to delete the book.';
       notifyListeners();
+      return false;
     }
   }
 
-  void clearMessage() {
-    if (_errorMessage == null) {
+  void clearSearchError() {
+    if (_searchErrorMessage == null) {
       return;
     }
 
-    _errorMessage = null;
+    _searchErrorMessage = null;
+    notifyListeners();
+  }
+
+  void clearLibraryMessage() {
+    if (_libraryMessage == null) {
+      return;
+    }
+
+    _libraryMessage = null;
     notifyListeners();
   }
 
