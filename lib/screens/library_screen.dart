@@ -14,56 +14,70 @@ class LibraryScreen extends StatelessWidget {
       builder: (context, provider, _) {
         final books = provider.libraryBooks;
 
-        return books.isEmpty
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text(
-                    'Your library is empty. Save a book from the Search tab.',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
-            : ListView.builder(
-                itemCount: books.length,
-                itemBuilder: (context, index) {
-                  final book = books[index];
+        return Column(
+          children: [
+            _LibraryHeader(bookCount: books.length),
+            Expanded(
+              child: books.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'Your library is empty. Save a book from the Search tab.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: books.length,
+                      itemBuilder: (context, index) {
+                        final book = books[index];
 
-                  return BookCard(
-                    book: book,
-                    subtitle: book.author,
-                    statusChip: _StatusChip(status: book.status),
-                    onTap: () => _editBook(context, provider, book),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) async {
-                        if (value == 'edit') {
-                          await _editBook(context, provider, book);
-                          return;
-                        }
+                        return BookCard(
+                          book: book,
+                          subtitle: book.author,
+                          statusChip: _StatusChip(status: book.status),
+                          onTap: () => _editBook(context, provider, book),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                await _editBook(context, provider, book);
+                                return;
+                              }
 
-                        if (book.id != null) {
-                          final deleted = await provider.deleteBook(book.id!);
-                          if (!context.mounted) {
-                            return;
-                          }
+                              if (book.id != null) {
+                                final deleted = await provider.deleteBook(
+                                  book.id!,
+                                );
+                                if (!context.mounted) {
+                                  return;
+                                }
 
-                          final message = deleted
-                              ? '${book.title} removed from your library.'
-                              : (provider.libraryMessage ??
-                                    'Unable to delete the book.');
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(SnackBar(content: Text(message)));
-                        }
+                                final message = deleted
+                                    ? '${book.title} removed from your library.'
+                                    : (provider.libraryMessage ??
+                                          'Unable to delete the book.');
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    SnackBar(content: Text(message)),
+                                  );
+                              }
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(value: 'edit', child: Text('Edit')),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
                       },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(value: 'edit', child: Text('Edit')),
-                        PopupMenuItem(value: 'delete', child: Text('Delete')),
-                      ],
                     ),
-                  );
-                },
-              );
+            ),
+          ],
+        );
       },
     );
   }
@@ -110,6 +124,43 @@ class LibraryScreen extends StatelessWidget {
       default:
         return 'Want to Read';
     }
+  }
+}
+
+class _LibraryHeader extends StatelessWidget {
+  const _LibraryHeader({required this.bookCount});
+
+  final int bookCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFD9E0D2),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'My Library',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              bookCount == 0
+                  ? 'Save books, track progress, and keep your reading notes in one place.'
+                  : '$bookCount saved ${bookCount == 1 ? 'book' : 'books'} with editable notes and ratings.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -216,8 +267,9 @@ class _BookEditDialogState extends State<_BookEditDialog> {
             ),
             const SizedBox(height: 16),
             Text('Rating', style: Theme.of(context).textTheme.titleMedium),
-            Wrap(
-              spacing: 4,
+            const SizedBox(height: 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: List.generate(5, (index) {
                 final star = index + 1;
                 return IconButton(
@@ -226,6 +278,12 @@ class _BookEditDialogState extends State<_BookEditDialog> {
                       _selectedRating = star;
                     });
                   },
+                  constraints: const BoxConstraints.tightFor(
+                    width: 40,
+                    height: 40,
+                  ),
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
                   icon: Icon(
                     star <= _selectedRating ? Icons.star : Icons.star_border,
                   ),

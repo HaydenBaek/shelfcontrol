@@ -15,6 +15,8 @@ class StatsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const _StatsHeader(),
+              const SizedBox(height: 16),
               Text(
                 'Reading Stats',
                 style: Theme.of(context).textTheme.headlineSmall,
@@ -44,6 +46,36 @@ class StatsScreen extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _StatsHeader extends StatelessWidget {
+  const _StatsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD8E1EA),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Track Your Progress',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'See how many books you have saved, are currently reading, and have already finished.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
     );
   }
 }

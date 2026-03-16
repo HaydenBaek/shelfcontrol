@@ -29,6 +29,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
         return Column(
           children: [
+            const _ScreenHeader(
+              title: 'Discover Your Next Read',
+              subtitle:
+                  'Search Open Library by title or author and add books to your shelf.',
+            ),
             BookSearchBar(
               controller: _controller,
               onSubmitted: provider.searchBooks,
@@ -86,6 +91,36 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         );
       },
+    );
+  }
+}
+
+class _ScreenHeader extends StatelessWidget {
+  const _ScreenHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEADCCB),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+          ],
+        ),
+      ),
     );
   }
 }

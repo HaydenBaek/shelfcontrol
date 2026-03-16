@@ -97,9 +97,13 @@ flutter:
 
 flutter_native_splash:
   color: "#F7F1E8"
+  image: assets/branding/splash_icon.png
   android: true
   ios: true
   web: false
+  android_12:
+    image: assets/branding/splash_icon.png
+    color: "#F7F1E8"
 
 flutter_launcher_icons:
   android: true
